@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Log manager</title>
+</head>
+<body>
+    <div id="log-container">
+        <div id="log-label">
+            <div>
+                <div style="flex-direction: column; display: flex;">
+                    Username or email
+                    <input type="email" id="username-input">
+                </div>
+                <div style="flex-direction: column; display: flex;">
+                    Password
+                    <input type="password" id="password-input">
+                </div>
+            </div>
+            <button id="submit-signin-btn">
+                Sign In
+            </button>
+            <button id="submit-signup-btn">
+                Sign Up
+            </button>
+            <div id="error-msg">Error</div>
+        </div>
+    </div>
+    <script src="js/log.js"></script>
+</body>
+</html>
