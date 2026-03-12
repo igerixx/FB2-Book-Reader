@@ -1,13 +1,10 @@
 package com.Service;
 
 import com.Entity.Book;
-import com.Entity.User;
 import com.Repository.BookRepository;
-import com.Repository.UserRepository;
 import com.igerixx.Reader.XMLReader;
 import com.igerixx.Reader.XMLReaderConstants;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +18,9 @@ import java.util.*;
 
 @Service
 public class BookService {
-    private User user;
     private final UserService userService;
     private final AuthService authService;
     private final BookRepository bookRepository;
-    private final String filePath = new File("Files/").getAbsolutePath();
 
     public BookService(UserService userService, BookRepository bookRepository, AuthService authService) {
         this.userService = userService;
@@ -37,6 +32,10 @@ public class BookService {
         InputStream is = null;
         XMLReader reader = null;
         InputStream tempIs = null;
+
+        final String filePath = authService.getCurrentUser() != null
+                ? new File("Files/" + authService.getCurrentUser().getUsername()).getAbsolutePath()
+                : new File("Files/").getAbsolutePath();
 
         if (multipartFile != null) {
             is = multipartFile.getInputStream();
