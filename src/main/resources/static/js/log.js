@@ -59,7 +59,7 @@ submitSignInBtn.addEventListener("click", () => {
         
         setInterval(() => {
             document.getElementById("error-msg").style.display = "none";
-            window.location.href = "index.html";
+            window.location.href = "http://localhost:8081/";
         }, 1000);
     }).catch(() => {
         document.getElementById("error-msg").textContent = "Username or password is incorrect!";

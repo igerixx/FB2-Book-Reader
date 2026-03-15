@@ -2,19 +2,23 @@ let username;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("http://localhost:8081/api/currentUser", {
-        method: "POST"
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
     });
 
     const data = await res.json();
     username = data.user;
 
+    console.log(username);
+
     if (username) {
         fetch("http://localhost:8081/api/books", {
             method: "POST",
             headers: {
-            "Content-Type": "application/json"
-            },
-            body: username
+            "Authorization": "Bearer " + localStorage.getItem("token")
+            }
         }).then(res => res.json())
         .then(data => {
             if (data.books.length > 0) {
@@ -43,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     div.addEventListener("click", () => {
                         localStorage.setItem("file", filename.textContent);
-                        window.location.href = "index.html";
+                        window.location.href = "http://localhost:8081/";
                     });
                     
                     historyLabel.appendChild(div);

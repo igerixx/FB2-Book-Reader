@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,9 +26,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
-    @Getter
-    @Setter
-    private com.Entity.User currentUser = null;
+
+    public Authentication currentUser() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 
     public JwtAuthResponse signUp(SignUpRequest sign) {
         if (userService.existsByUsername(sign.getUsername()))
@@ -44,7 +47,7 @@ public class AuthService {
                 Role.ROLE_USER
         );
 
-        currentUser = userService.createUser(us);
+        userService.createUser(us);
 
         return new JwtAuthResponse(jwtService.generateToken(user));
     }
@@ -57,8 +60,6 @@ public class AuthService {
                 sign.getUsername(),
                 sign.getPassword()
         ));
-
-        currentUser = userService.findByUsername(sign.getUsername());
 
         try {
             var user = userDetailsService.loadUserByUsername(sign.getUsername());

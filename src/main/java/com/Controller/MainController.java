@@ -28,11 +28,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class MainController {
     private final BookService bookService;
-    private final UserService userService;
     private final AuthService authService;
 
     @PostMapping("/signin")
@@ -50,12 +49,6 @@ public class MainController {
         HttpSession session = request.getSession(false);
         if (session != null) session.invalidate();
         SecurityContextHolder.clearContext();
-        authService.setCurrentUser(null);
-    }
-
-    @GetMapping("/book")
-    public Map<String, String> map() {
-        return Map.of("status", "ok");
     }
 
     @PostMapping("/uploadByF")
@@ -68,19 +61,15 @@ public class MainController {
         return bookService.upload(null, filename);
     }
 
-    @PostMapping("books")
-    public ResponseEntity<Map<String, ?>> books(@RequestBody String username) {
-        return bookService.books(username);
+    @PostMapping("/books")
+    public ResponseEntity<Map<String, ?>> books() {
+        return bookService.books(authService.currentUser().getName());
     }
 
     @PostMapping("/currentUser")
     public ResponseEntity<Map<String, String>> currentUser() {
         return ResponseEntity
             .ok()
-            .body(Map.of(
-                    "user", authService.getCurrentUser() != null
-                            ? authService.getCurrentUser().getUsername()
-                            : "$none"
-            ));
+            .body(Map.of("user", authService.currentUser().getName()));
     }
 }

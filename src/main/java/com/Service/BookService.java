@@ -1,10 +1,14 @@
 package com.Service;
 
 import com.Entity.Book;
+import com.Entity.Role;
+import com.Entity.User;
 import com.Repository.BookRepository;
 import com.igerixx.Reader.XMLReader;
 import com.igerixx.Reader.XMLReaderConstants;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,8 +37,11 @@ public class BookService {
         XMLReader reader = null;
         InputStream tempIs = null;
 
-        final String filePath = authService.getCurrentUser() != null
-                ? new File("Files/" + authService.getCurrentUser().getUsername()).getAbsolutePath()
+        String username = authService.currentUser().getName();
+        System.out.println(username);
+
+        final String filePath = !username.equals("anonymousUser")
+                ? new File("Files/" + authService.currentUser().getName()).getAbsolutePath()
                 : new File("Files/").getAbsolutePath();
 
         if (multipartFile != null) {
@@ -314,18 +321,20 @@ public class BookService {
             }
         }
 
-        if (authService.getCurrentUser() != null && multipartFile != null) {
+        if (!authService.currentUser().getName().equals("anonymousUser") && multipartFile != null) {
             File dir = new File(filePath);
             if (!dir.exists())
                 dir.mkdirs();
 
             multipartFile.transferTo(new File(dir, multipartFile.getOriginalFilename()));
 
+            User user = userService.findByUsername(authService.currentUser().getName());
+
             Book book = new Book();
             book.setFilename(multipartFile.getOriginalFilename());
             book.setBookname(bookName);
             book.setTime(ZonedDateTime.now());
-            book.setUser(authService.getCurrentUser());
+            book.setUser(user);
 
             if (!existBook(book.getFilename(), book.getUser().getId()))
                 saveBook(book);

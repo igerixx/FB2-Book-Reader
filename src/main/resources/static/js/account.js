@@ -3,21 +3,34 @@ const logOutBtn = document.getElementById("log-out");
 
 document.addEventListener("DOMContentLoaded", () => {
     fetch("http://localhost:8081/api/currentUser", {
-        method: "POST"
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
     })
     .then(res => res.json())
     .then(data => {
         document.getElementById("username").textContent = data.user;
+    })
+    .catch(() => {
+        window.location.href = "/";
     });
 });
 
 history.addEventListener("click", () => {
-    window.location.href = "historyWindow.html";
+    // fetch("http://localhost:8081/history", {
+    //     method: "POST",
+    //     headers: {
+    //         "Authorization": "Bearer " + localStorage.getItem("token")
+    //     }
+    // });
+    window.location.href = "http://localhost:8081/history";
 });
 
 logOutBtn.addEventListener("click", () => {
     fetch("http://localhost:8081/api/logout", {
         method: "POST"
     });
-    window.location.href = "index.html";
+    localStorage.removeItem("token");
+    window.location.href = "http://localhost:8081/";
 });

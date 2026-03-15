@@ -9,16 +9,21 @@ const accCircle = document.getElementById("acc-circle");
 
 document.addEventListener("DOMContentLoaded", () => {
     fetch("http://localhost:8081/api/currentUser", {
-        method: "POST"
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
     })
     .then(res => res.json())
     .then(data => {
-        if (data.user !== "$none") {
-            document.getElementById("acc-circle").textContent = data.user.at(0).toUpperCase();
-            document.getElementById("acc-circle").style.display = "flex";
-            document.getElementById("acc-circle").style.backgroundColor = "rgb(" + Math.random() * 255 + ", " + Math.random() * 255 + ", " + Math.random() * 255 + ")";
+        if (data.user === null) {
+            window.location.href = "http://localhost:8081/";
         }
-    })
+
+        document.getElementById("acc-circle").textContent = data.user.at(0).toUpperCase();
+        document.getElementById("acc-circle").style.display = "flex";
+        document.getElementById("acc-circle").style.backgroundColor = "rgb(" + Math.random() * 255 + ", " + Math.random() * 255 + ", " + Math.random() * 255 + ")";
+    });
 
     if (localStorage.getItem("file")) {
         filename = localStorage.getItem("file");
@@ -35,7 +40,7 @@ input.addEventListener("change", function () {
 });
 
 logBtn.addEventListener("click", () => {
-    window.location.href = "logWindow.html";
+    window.location.href = "http://localhost:8081/login";
 });
 
 headTitle.addEventListener("click", () => {
@@ -46,7 +51,13 @@ headTitle.addEventListener("click", () => {
 })
 
 accCircle.addEventListener("click", () => {
-    window.location.href = "accountWindow.html";
+    // fetch("http://localhost:8081/account", {
+    //     method: "POST",
+    //     headers: {
+    //         "Authorization": "Bearer " + localStorage.getItem("token")
+    //     }
+    // });
+    window.location.href = "http://localhost:8081/account";
 });
 
 function loadBook(filename) {
@@ -65,6 +76,9 @@ function loadBook(filename) {
     
     fetch(url, {
         method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
         body: body
     })
     .then((response) => {

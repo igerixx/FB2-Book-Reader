@@ -1,6 +1,7 @@
 package com.Security;
 
 import ch.qos.logback.core.util.StringUtil;
+import com.Service.CustomUserDetailsService;
 import com.Service.JwtService;
 import com.Service.UserService;
 import io.micrometer.common.util.StringUtils;
@@ -26,7 +27,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final UserService userService;
+    private final CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -46,9 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         var username = jwtService.extractUsername(jwt);
 
         if (!username.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService
-                    .userDetailsService()
-                    .loadUserByUsername(username);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
