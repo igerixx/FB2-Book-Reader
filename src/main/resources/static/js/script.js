@@ -86,15 +86,11 @@ async function loadBook(filename) {
         })
         .then(res => res.json())
         .then(data => {
-            console.log("user: " + data.user)
             user = data.user
         });
 
-        console.log("user111: " + user)
         if (user) {
-            console.log(user);
             options.headers = {"Authorization": "Bearer " + localStorage.getItem("token")};
-            console.log(options);
         }
     }
     
