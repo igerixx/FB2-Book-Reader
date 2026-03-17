@@ -16,10 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.user === null) {
-            window.location.href = "http://localhost:8081/";
-        }
-
         document.getElementById("acc-circle").textContent = data.user.at(0).toUpperCase();
         document.getElementById("acc-circle").style.display = "flex";
         document.getElementById("acc-circle").style.backgroundColor = "rgb(" + Math.random() * 255 + ", " + Math.random() * 255 + ", " + Math.random() * 255 + ")";

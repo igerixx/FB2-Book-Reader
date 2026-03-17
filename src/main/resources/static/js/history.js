@@ -9,9 +9,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const data = await res.json();
+    if (data.user == null) {
+        window.location.href = "http://localhost:8081/";
+    }
     username = data.user;
-
-    console.log(username);
 
     if (username) {
         fetch("http://localhost:8081/api/books", {

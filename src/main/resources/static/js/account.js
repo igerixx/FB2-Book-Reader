@@ -10,10 +10,13 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(res => res.json())
     .then(data => {
+        if (data.user == null) {
+            window.location.href = "http://localhost:8081/";
+        }
         document.getElementById("username").textContent = data.user;
     })
     .catch(() => {
-        window.location.href = "/";
+        window.location.href = "http://localhost:8081/";
     });
 });
 
