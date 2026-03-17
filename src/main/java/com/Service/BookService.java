@@ -38,7 +38,6 @@ public class BookService {
         InputStream tempIs = null;
 
         String username = authService.currentUser().getName();
-        System.out.println(username);
 
         final String filePath = !username.equals("anonymousUser")
                 ? new File("Files/" + authService.currentUser().getName()).getAbsolutePath()
@@ -66,6 +65,7 @@ public class BookService {
         List<String> prphs = new ArrayList<>();
         String bookName = "";
         StringBuilder base64;
+        boolean isMarkdown = false;
 
         int event;
         while (reader.hasNext()) {
@@ -186,19 +186,48 @@ public class BookService {
 
                 // --- Subtitles ---
                 if (reader.getLocalName().equals("subtitle")) {
+                    Stack<String> tags = new Stack<>();
+                    tags.push(reader.getLocalName());
+                    String tag = reader.getLocalName();
                     event = reader.next();
+                    StringBuilder stringBuilder = new StringBuilder();
                     while (EOFLoop(event)) {
                         if (event == XMLReaderConstants.END_ELEMENT
                                 && reader.getLocalName().equals("subtitle")) {
                             break;
                         }
 
-                        if (!reader.getText().isEmpty()) {
-                            prphs.add("<br><span class='subtitle'>" + reader.getText() + "</span><br>");
+                        if (event == XMLReaderConstants.START_ELEMENT
+                                && !reader.getLocalName().isEmpty()
+                                && !reader.getLocalName().equals(tags.peek())) {
+                            tags.push(reader.getLocalName());
+                            stringBuilder
+                                    .append("<br><span class='")
+                                    .append(tag)
+                                    .append("'>")
+                                    .append(insideTag(reader, tags))
+                                    .append("<br>");
+                        } else if (event == XMLReaderConstants.START_ELEMENT) {
+                            tags.push(reader.getLocalName());
                         }
 
                         event = reader.next();
+                        if (!tag.isEmpty()
+                                && tag.equals(tags.firstElement())
+                                && tags.size() > 1) {
+                            tags.pop();
+                        }
+
+                        if (event == XMLReaderConstants.END_ELEMENT
+                                && reader.getLocalName().equals(tags.peek())) {
+                            break;
+                        }
                     }
+
+                    if (!stringBuilder.isEmpty()) {
+                        prphs.add(stringBuilder.toString());
+                    }
+
                     continue;
                 }
 
@@ -270,12 +299,29 @@ public class BookService {
                     while (EOFLoop(event)) {
                         if (event == XMLReaderConstants.CHARACTERS
                                 && !reader.getText().isEmpty()) {
-                            String tagName = tags.peek().equals("p") ? "span" : tags.peek();
+                            String text = reader.getText();
+                            if (reader.getText().startsWith("```") && !isMarkdown) {
+                                reader.next();
+                                reader.next();
+                                reader.next();
+                                isMarkdown = true;
+                                text = reader.getText();
+                            } else if (reader.getText().startsWith("```") && isMarkdown) {
+                                isMarkdown = false;
+                                if (reader.getText().trim().length() == 3) {
+                                    reader.next();
+                                    text = "";
+                                } else {
+                                    text = reader.getText().replace("```", "");
+                                }
+                                reader.next();
+                            }
+                            String tagName = isMarkdown ? "code" : tags.peek().equals("p") ? "span" : tags.peek();
                             stringBuilder
                                     .append("<span class='")
                                     .append(tagName)
                                     .append("'>")
-                                    .append(reader.getText())
+                                    .append(text)
                                     .append(" </span>");
                         }
 
@@ -283,7 +329,7 @@ public class BookService {
                                 && !reader.getLocalName().isEmpty()
                                 && !reader.getLocalName().equals(tags.peek())) {
                             tags.push(reader.getLocalName());
-                            String tagName = tags.peek().equals("p") ? "span" : tags.peek();
+                            String tagName = isMarkdown ? "code" : tags.peek().equals("p") ? "span" : tags.peek();
                             stringBuilder
                                     .append("<span class='")
                                     .append(tagName)

@@ -60,27 +60,45 @@ accCircle.addEventListener("click", () => {
     window.location.href = "http://localhost:8081/account";
 });
 
-function loadBook(filename) {
+async function loadBook(filename) {
     const main = document.getElementById("main");
     main.replaceChildren();
     main.style.display = "none";
-    let body;
+    let body, header;
+    const options = {
+        method: "POST",
+    };
     if (typeof filename === "string") {
         url = "/api/uploadByH";
-        body = filename;
+        options.body = filename;
+        options.headers = {"Authorization": "Bearer " + localStorage.getItem("token")};
     } else {
         url = "/api/uploadByF";
         body = new FormData();
         body.append("data", filename);
+        options.body = body;
+        let user;
+        await fetch("http://localhost:8081/api/currentUser", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("user: " + data.user)
+            user = data.user
+        });
+
+        console.log("user111: " + user)
+        if (user) {
+            console.log(user);
+            options.headers = {"Authorization": "Bearer " + localStorage.getItem("token")};
+            console.log(options);
+        }
     }
     
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        body: body
-    })
+    fetch(url, options)
     .then((response) => {
         return response.json();
     })
